@@ -1,0 +1,40 @@
+
+services:
+  mariadb:
+    image: mariadb:10.11
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: devfolio
+    volumes:
+      - ./database:/docker-entrypoint-initdb.d
+      - mariadb_data:/var/lib/mysql
+    # Pas de healthcheck
+    # Pas de réseau isolé
+
+  backend:
+    build: ./backend
+    depends_on:
+      - mariadb
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/devfolio
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      JWT_SECRET: devfolio-super-secret-jwt-key-audit-256bits!
+      DEVFOLIO_ADMIN_PASSWORD: admin123
+      DEBUG: "true"
+    restart: on-failure
+    
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+
+volumes:
+  mariadb_data:

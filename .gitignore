@@ -1,0 +1,16 @@
+# Build & artifacts
+target/
+*.class
+
+# Frontend
+node_modules/
+dist/
+
+# Logs
+*.log
+
+# IDE & OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
