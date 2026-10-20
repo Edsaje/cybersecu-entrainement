@@ -9,7 +9,9 @@ package com.devfolio.controller;
     import org.springframework.http.ResponseEntity;                                                                                                                                  
     import org.springframework.web.bind.annotation.*;                                                                                                                                
                                                                                                                                                                                      
-    import java.util.List;                                                                                                                                                           
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;                                                                                                                                                           
                                                                                                                                                                                      
     @RestController                                                                                                                                                                  
     @RequestMapping("/api")                                                                                                                                                          
@@ -56,16 +58,24 @@ package com.devfolio.controller;
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).build();                                                                                                          
             }                                                                                                                                                                        
                                                                                                                                                                                      
-            return userRepository.findById(id).map(user -> {                                                                                                                         
-                user.setEmail(updated.getEmail());                                                                                                                                   
-                user.setBio(updated.getBio());                                                                                                                                       
-                                                                                                                                                                                     
-                // VULN-10 (Mass Assignment) : Seul un ADMIN a le droit de changer le rôle                                                                                           
-                if ("ADMIN".equals(currentUserRole) && updated.getRole() != null) {                                                                                                  
-                    user.setRole(updated.getRole());                                                                                                                                 
-                }                                                                                                                                                                    
-                                                                                                                                                                                     
-                return ResponseEntity.ok(userRepository.save(user));                                                                                                                 
+            return userRepository.findById(id).map(user -> {
+                // VULN-12 : Vérifier que le nouvel email n'est pas déjà pris par un tiers
+                if (updated.getEmail() != null && !updated.getEmail().equals(user.getEmail())) {
+                    Optional<User> existing = userRepository.findByEmail(updated.getEmail());
+                    if (existing.isPresent() && !existing.get().getId().equals(id)) {
+                        return ResponseEntity.status(HttpStatus.CONFLICT)
+                                .body(Map.of("error", "Cet email est déjà utilisé par un autre compte"));
+                    }
+                    user.setEmail(updated.getEmail());
+                }
+                user.setBio(updated.getBio());
+
+                // VULN-10 (Mass Assignment) : Seul un ADMIN a le droit de changer le rôle
+                if ("ADMIN".equals(currentUserRole) && updated.getRole() != null) {
+                    user.setRole(updated.getRole());
+                }
+
+                return ResponseEntity.ok(userRepository.save(user));
             }).orElse(ResponseEntity.notFound().build());                                                                                                                            
         }                                                                                                                                                                            
   

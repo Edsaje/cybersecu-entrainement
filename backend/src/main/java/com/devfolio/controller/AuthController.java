@@ -7,6 +7,7 @@ import com.devfolio.service.JwtService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -42,14 +43,10 @@ public class AuthController {
 
         Optional<User> userOpt = userRepository.findByEmail(username);
 
-        if (userOpt.isEmpty()) {
-            return ResponseEntity.status(401).body(Map.of("error", "Utilisateur inconnu"));
-        }
-
+        if (userOpt.isEmpty() || !passwordEncoder.matches(password, userOpt.get().getPassword())) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Identifiants invalides"));
+}
         User user = userOpt.get();
-        if (!passwordEncoder.matches(password, user.getPassword())) {
-            return ResponseEntity.status(401).body(Map.of("error", "Mot de passe incorrect"));
-        }
 
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(Map.of("token", token, "user", user));
@@ -71,8 +68,13 @@ public class AuthController {
 
     @PostMapping("/reset-password/request")
     public ResponseEntity<?> requestReset(@RequestParam String email) {
+        userRepository.findByEmail(email).ifPresent(user -> {
         String token = UUID.randomUUID().toString();
-        String resetUrl = "http://localhost:5173/reset-password?token=" + token + "&email=" + email;
-        return ResponseEntity.ok(Map.of("resetUrl", resetUrl));
+            log.info("Demande de réinitialisation de mot de passe traitée pour {}", email);
+        });
+
+        return ResponseEntity.ok(Map.of(
+            "message", "Si cette adresse est associée à un compte, un lien de réinitialisation a été envoyé par email."
+        ));
     }
 }

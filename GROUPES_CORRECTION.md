@@ -23,7 +23,7 @@ flowchart TD
 
 | Groupe | Thématique | Fichiers cibles | Vulnérabilités couvertes | Statut |
 | :---: | :--- | :--- | :--- | :---: |
-| **G1** | **Authentification & Mots de Passe** | `JwtService`, `AuthController`, `AuthService`, `SecurityConfig`, `init.sql` | **VULN-03**, **VULN-08**, **VULN-09 (logs)**, **VULN-12**, **VULN-13**, **VULN-15** | ⏳ À faire |
+| **G1** | **Authentification & Mots de Passe** | `JwtService`, `AuthController`, `AuthService`, `SecurityConfig`, `init.sql` | **VULN-03**, **VULN-08**, **VULN-09 (logs)**, **VULN-12**, **VULN-13**, **VULN-15** | ✅ Terminé |
 | **G2** | **Contrôle d'Accès & Autorisations** | `SecurityConfig`, `ProjectController`, `UserController`, `router/index.js` | **VULN-02**, **VULN-06**, **VULN-18** (+ route guard) | ⏳ À faire |
 | **G3** | **Injections & Validation des Entrées** | `SearchController`, `ProjectRepository`, `AvatarController`, `ProfileView.vue`, `ProjectView.vue` | **VULN-01**, **VULN-05**, **VULN-07**, **VULN-14** | 🟡 En cours (VULN-01 traitée) |
 | **G4** | **Configuration & Durcissement** | `application.properties`, `Dockerfile`, `SecurityConfig`, `docker-compose.yml`, `.env` | **VULN-04**, **VULN-10**, **VULN-11**, **VULN-16**, **VULN-17** (+ DB & ignores) | ⏳ À faire |
@@ -199,7 +199,7 @@ docker compose exec backend mvn dependency:tree | grep -i "log4j-core"
 
 - [x] **VULN-01** : Injection SQL dans SearchController *(Groupe 3)*
 - [ ] **VULN-02** : Contrôle d'accès désactivé /permitAll sur admin *(Groupe 2)*
-- [ ] **VULN-03** : Bypass signature JWT (None algorithm) *(Groupe 1)*
+- [x] **VULN-03** : Bypass signature JWT (None algorithm) *(Groupe 1)*
 - [ ] **VULN-04** : Exposition Spring Actuator (/actuator/env, etc.) *(Groupe 4)*
 - [ ] **VULN-05** : SSRF sur import avatar et projet *(Groupe 3)*
 - [ ] **VULN-06** : IDOR / BOLA & Mass Assignment sur projets et users *(Groupe 2)*
@@ -208,10 +208,10 @@ docker compose exec backend mvn dependency:tree | grep -i "log4j-core"
 - [x] **VULN-09** : Mots de passe en clair dans les logs & Log4Shell *(Groupe 1 & 5)*
 - [ ] **VULN-10** : Exposition de secrets dans .env *(Groupe 4)*
 - [ ] **VULN-11** : Port de débogage JVM JDWP 5005 ouvert *(Groupe 4)*
-- [ ] **VULN-12** : Absence d'unicité sur l'email / DoS applicatif *(Groupe 1)*
-- [ ] **VULN-13** : Énumération d'utilisateurs sur le login *(Groupe 1)*
+- [x] **VULN-12** : Absence d'unicité sur l'email / DoS applicatif *(Groupe 1)*
+- [x] **VULN-13** : Énumération d'utilisateurs sur le login *(Groupe 1)*
 - [ ] **VULN-14** : DOM XSS sur le paramètre ?ref= *(Groupe 3)*
-- [ ] **VULN-15** : Fuite du token de réinitialisation de mot de passe *(Groupe 1)*
+- [x] **VULN-15** : Fuite du token de réinitialisation de mot de passe *(Groupe 1)*
 - [ ] **VULN-16** : Stacktraces verbeuses renvoyées au client *(Groupe 4)*
 - [ ] **VULN-17** : Politique CORS permissive et protection CSRF *(Groupe 4)*
 - [ ] **VULN-18** : Absence de validation JWT côté backend & sessions expirées *(Groupe 2 & 1)*
