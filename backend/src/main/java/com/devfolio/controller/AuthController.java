@@ -57,6 +57,15 @@ public class AuthController {
         String email = request.get("email");
         String password = request.get("password");
 
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email requis"));
+        }
+
+        if (password == null || !isValidPassword(password)) {
+            return ResponseEntity.badRequest().body(Map.of("error",
+                "Le mot de passe doit contenir au moins 8 caractères, dont au moins une lettre, un chiffre et un caractère spécial"));
+        }
+
         if (userRepository.findByEmail(email).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "Email déjà utilisé"));
         }
@@ -64,6 +73,16 @@ public class AuthController {
         User user = authService.register(email, password);
         String token = jwtService.generateToken(user);
         return ResponseEntity.ok(Map.of("token", token, "user", user));
+    }
+
+    private boolean isValidPassword(String password) {
+        if (password.length() < 8) {
+            return false;
+        }
+        boolean hasLetter = password.chars().anyMatch(Character::isLetter);
+        boolean hasDigit = password.chars().anyMatch(Character::isDigit);
+        boolean hasSpecial = password.chars().anyMatch(ch -> !Character.isLetterOrDigit(ch));
+        return hasLetter && hasDigit && hasSpecial;
     }
 
     @PostMapping("/reset-password/request")

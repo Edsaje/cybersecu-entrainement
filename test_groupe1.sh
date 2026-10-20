@@ -103,6 +103,26 @@ else
     echo -e "${RED}  ✗ ÉCHEC : Code HTTP inattendu : $HTTP_CODE (409 Conflict attendu).${NC}"
 fi
 
+# ------------------------------------------------------------------------------
+# Test 6 : Politique de complexité des mots de passe (min 8 chars, lettre, chiffre, spécial)
+# ------------------------------------------------------------------------------
+echo -e "\n${YELLOW}[Test 6/6] Sécurité des mots de passe : Vérification des exigences de complexité...${NC}"
+CODE_TOO_SHORT=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API_URL/auth/register" \
+  -H "Content-Type: application/json" -d '{"email":"testpwd1@audit.fr","password":"Ab1!"}')
+CODE_NO_SPECIAL=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API_URL/auth/register" \
+  -H "Content-Type: application/json" -d '{"email":"testpwd2@audit.fr","password":"Password123"}')
+CODE_VALID=$(curl -s -o /dev/null -w "%{http_code}" -X POST "$API_URL/auth/register" \
+  -H "Content-Type: application/json" -d '{"email":"testpwd3@audit.fr","password":"Secur3P@ssword"}')
+
+# Nettoyage du compte créé pour le test
+docker compose exec -T mariadb mariadb -u root -proot devfolio -e "DELETE FROM users WHERE email='testpwd3@audit.fr';" 2>/dev/null || true
+
+if [[ "$CODE_TOO_SHORT" == "400" && "$CODE_NO_SPECIAL" == "400" && "$CODE_VALID" == "200" ]]; then
+    echo -e "${GREEN}  ✓ SUCCÈS : Mots de passe faibles rejetés (400) et mot de passe conforme accepté (200).${NC}"
+else
+    echo -e "${RED}  ✗ ÉCHEC : Politique mot de passe non respectée (Court: $CODE_TOO_SHORT, Sans spécial: $CODE_NO_SPECIAL, Valide: $CODE_VALID).${NC}"
+fi
+
 echo -e "\n${BLUE}======================================================================${NC}"
 echo -e "${GREEN}  🎉 Tous les tests du Groupe 1 ont été validés avec brio !           ${NC}"
 echo -e "${BLUE}======================================================================${NC}\n"

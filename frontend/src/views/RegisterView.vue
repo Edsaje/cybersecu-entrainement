@@ -10,9 +10,21 @@ const error = ref('')
 const router = useRouter()
 const auth = useAuthStore()
 
+function isValidPassword(pwd) {
+  if (!pwd || pwd.length < 8) return false
+  const hasLetter = /[a-zA-Z]/.test(pwd)
+  const hasDigit = /[0-9]/.test(pwd)
+  const hasSpecial = /[^a-zA-Z0-9]/.test(pwd)
+  return hasLetter && hasDigit && hasSpecial
+}
+
 async function register() {
   try {
     error.value = ''
+    if (!isValidPassword(password.value)) {
+      error.value = 'Le mot de passe doit contenir au moins 8 caractères, dont au moins une lettre, un chiffre et un caractère spécial.'
+      return
+    }
     const { data } = await api.post('/auth/register', {
       email: email.value,
       password: password.value
@@ -39,7 +51,8 @@ async function register() {
             </div>
             <div class="mb-3">
               <label class="form-label">Mot de passe</label>
-              <input v-model="password" type="password" class="form-control" minlength="1" required>
+              <input v-model="password" type="password" class="form-control" minlength="8" required>
+              <div class="form-text">8 caractères minimum, avec au moins une lettre, un chiffre et un caractère spécial.</div>
             </div>
             <button type="submit" class="btn btn-success w-100">S'inscrire</button>
           </form>
