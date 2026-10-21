@@ -15,10 +15,11 @@ services:
 
   backend:
     build: ./backend
+    user: "1000:1000"
     depends_on:
       - mariadb
     ports:
-      - "8080:8080"
+      - "127.0.0.1:8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:mariadb://mariadb:3306/devfolio
       SPRING_DATASOURCE_USERNAME: root

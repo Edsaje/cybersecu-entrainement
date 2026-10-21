@@ -8,5 +8,6 @@ Plateforme de portfolios étudiants.
 docker compose up --build
 ```
 
-- Frontend : http://localhost
-- API : http://localhost:8080
+- Frontend & Reverse-Proxy : http://localhost
+- API (via Reverse-Proxy) : http://localhost/api
+- Backend Spring Boot (Localhost uniquement) : http://127.0.0.1:8080
